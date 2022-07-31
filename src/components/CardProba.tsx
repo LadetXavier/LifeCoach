@@ -5,11 +5,11 @@ const CardProba = () => {
     let [addCardText,setAddCardText] = useState("");
     let [addCardNumber, setAddCardNumber] = useState(0);
     let [DeckList,setDeckList] = useState([]);
+    let [cardFound,setCardFound] = useState("");
 
     const addCardEvent = (e) => {      
         if(!DeckList.some((element) => element.CardName === addCardText.toLowerCase())){
-             setDeckList([...DeckList,{"CardName": addCardText.toLowerCase(),"CardLeft":addCardNumber}]);     
-             console.log(DeckList.includes(addCardText.toLowerCase()));
+             setDeckList([...DeckList,{"CardName": addCardText.toLowerCase(),"CardLeft":addCardNumber}]);              
         }
         else {
             let existingCard = DeckList.find(element => element.CardName === addCardText.toLowerCase());
@@ -18,9 +18,42 @@ const CardProba = () => {
         }         
     }
 
-    const removeFromDeckList = (e) => {
-        let newDeck = DeckList.filter(element => element.CardName !== e.target.name);          
+    const removeFromDeckList = (name:string) => {
+        let newDeck = DeckList.filter(element => element.CardName !== name);          
         setDeckList([...newDeck]);
+        
+    }
+
+    const HandlerDelete = (e) => {
+        removeFromDeckList(e.target.name);
+    }
+
+    const Draw = () => {
+        
+        let maxNumber = 0;
+         DeckList.forEach( element => maxNumber = maxNumber+element.CardLeft);
+        const randomCard = Math.floor(Math.random() * maxNumber);
+        let cardDrawed = "";
+        let currentTestNumber = 0;
+        DeckList.every( element => {
+            currentTestNumber = currentTestNumber + element.CardLeft;
+            if(randomCard < currentTestNumber) {
+                cardDrawed = element.CardName;                
+                element.CardLeft--;
+                if(element.CardLeft === 0){
+                    console.log(element.CardName);
+                    removeFromDeckList(element.CardName);                    
+                }
+                else {
+                    setDeckList([...DeckList]);
+                }
+                return false;                
+            }
+            else {
+                return true;
+            }
+        });
+        setCardFound(cardDrawed);
         
     }
 
@@ -37,11 +70,15 @@ const CardProba = () => {
         <ul>
             {DeckList.map(card => 
             <li key={card.CardName}>{card.CardName} x {card.CardLeft}
-            <input type="button" value="-" name={card.CardName} onClick={removeFromDeckList}/>
+            <input type="button" value="-" name={card.CardName} onClick={HandlerDelete}/>
             </li>
             )}
         </ul>    
         
+        </div>
+        <div className="Draw-container">
+            <input type="button" value="Draw" onClick={Draw} />
+            <p>{cardFound}</p>
         </div>
 
     </div>
